@@ -1,0 +1,77 @@
+CREATE A NETWORK 
+1. CREATE A VPC AND ADD 2 SUBNETS NAMES SUBNET-A SUBNET-B
+2. CREATE SERVERS ON EACH SUBNETS 
+3. ADD PREVENT DESTROY AND IGNORE CHANGES BOTH
+4. MODIFY THINGS IN CLOUD AND CHECK DRIFT
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_vpc" "main" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
+
+  tags = {
+    Name = "main"
+  }
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
+}
+resource "aws_subnet" "subnet-A" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
+
+  tags = {
+    Name = "subnet-A"
+  }
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
+}
+resource "aws_subnet" "subnet-B" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1b"
+
+  tags = {
+    Name = "SUBNET-B"
+  }
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
+}
+
+resource "aws_instance" "server1" {
+  ami           = "ami-04b938437b69a2c9c"
+  instance_type = "t3.micro"
+  subnet_id     = aws_subnet.subnet-A.id
+
+  tags = {
+    Name = "server1"
+  }
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = all
+  }
+}
+resource "aws_instance" "server2" {
+  ami           = "ami-04b938437b69a2c9c"
+  instance_type = "t3.micro"
+  subnet_id     = aws_subnet.subnet-B.id
+  tags = {
+    Name = "server2"
+  }
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes = all
+  }
+}
+
+
+
